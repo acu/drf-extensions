@@ -61,7 +61,8 @@ class NestedViewSetMixin(object):
         for kwarg_name, kwarg_value in six.iteritems(self.kwargs):
             if kwarg_name.startswith(extensions_api_settings.DEFAULT_PARENT_LOOKUP_KWARG_NAME_PREFIX):
                 d[kwarg_name] = kwarg_value
-        d.popitem()
+        if d:
+            d.popitem()
         res = dict()
         for kwarg_name, kwarg_value in six.iteritems(d):
             tmp = kwarg_name.split(extensions_api_settings.DEFAULT_PARENT_LOOKUP_KWARG_NAME_PREFIX)[1].split('__')
@@ -70,12 +71,14 @@ class NestedViewSetMixin(object):
 
     def get_queryset(self):
         assert(hasattr(self, 'parent_viewset_class'), 'assert')
-        parent_instance = self.parent_viewset_class()
-        parent_instance.kwargs = self.get_parents_query()
-        key, value = self.get_parents_query_dict().popitem()
-        parent_instance.kwargs[key.split('__')[-1]] = value
-        parent_instance.request = self.request
-        super_queryset = parent_instance.get_object()
+        if self.get_parents_query_dict():
+            parent_instance = self.parent_viewset_class()
+            parent_instance.kwargs = self.get_parents_query()
+            if self.get_parents_query_dict():
+                key, value = self.get_parents_query_dict().popitem()
+                parent_instance.kwargs[key.split('__')[-1]] = value
+            parent_instance.request = self.request
+            super_queryset = parent_instance.get_object()
         return self.filter_queryset_by_parents_lookups(
             super(NestedViewSetMixin, self).get_queryset()
         )
