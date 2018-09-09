@@ -72,8 +72,8 @@ class NestedViewSetMixin(object):
         assert(hasattr(self, 'parent_viewset_class'), 'assert')
         parent_instance = self.parent_viewset_class()
         parent_instance.kwargs = self.get_parents_query()
-        for elt in self.get_parents_query_dict():
-            parent_instance.kwargs[elt.split('__')[-1]] = self.get_parents_query_dict()[elt]
+        key, value = self.get_parents_query_dict().popitem()
+        parent_instance.kwargs[key.split('__')[-1]] = value
         parent_instance.request = self.request
         super_queryset = parent_instance.get_object()
         return self.filter_queryset_by_parents_lookups(
