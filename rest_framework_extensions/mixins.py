@@ -65,7 +65,7 @@ class NestedViewSetMixin(object):
             d.popitem()
         res = dict()
         for kwarg_name, kwarg_value in six.iteritems(d):
-            tmp = kwarg_name.split(extensions_api_settings.DEFAULT_PARENT_LOOKUP_KWARG_NAME_PREFIX)[1].split('__')
+            tmp = kwarg_name.replace(extensions_api_settings.DEFAULT_PARENT_LOOKUP_KWARG_NAME_PREFIX, "", 1).split('__')
             res[extensions_api_settings.DEFAULT_PARENT_LOOKUP_KWARG_NAME_PREFIX + "__".join(tmp[1:])] = kwarg_value
         return res
 
